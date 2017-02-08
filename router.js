@@ -1,14 +1,23 @@
 const Profile = require('./profile.js');
 const renderer = require('./renderer.js');
+const querystring = require('querystring');
 
 function home(req, res) {
 	if(req.url === "/") {
-		res.statusCode = 200;
-	  	res.setHeader('Content-Type', 'text/html');
-	  	renderer.view('header', {}, res);
-	  	renderer.view('search', {}, res);
-	  	renderer.view('footer', {}, res);
-	  	res.end();
+		if(req.method.toLowerCase() === 'get') {
+			res.statusCode = 200;
+		  	res.setHeader('Content-Type', 'text/html');
+		  	renderer.view('header', {}, res);
+		  	renderer.view('search', {}, res);
+		  	renderer.view('footer', {}, res);
+		  	res.end();
+		} else {
+			req.on('data', postBody => {
+				let query = querystring.parse(postBody.toString());
+				res.writeHead(303, {'Location': '/' + query.username});
+				res.end();
+			});
+		}
 	}
 }
 
